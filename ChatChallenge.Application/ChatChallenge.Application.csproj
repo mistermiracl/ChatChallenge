@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChatChallenge.Domain\ChatChallenge.Domain.csproj" />
+    <ProjectReference Include="..\ChatChallenge.Domain.Entities\ChatChallenge.Domain.Entities.csproj" />
+  </ItemGroup>
+
+</Project>

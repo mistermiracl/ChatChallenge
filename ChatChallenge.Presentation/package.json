@@ -1,0 +1,16 @@
+{
+  "name": "chatchallenge",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "tailwind": "tailwind",
+    "watch": "tailwindcss -i ./resources/css/main.css -o ./wwwroot/css/bundle.css --watch",
+    "build": "tailwindcss -i ./resources/css/main.css -o ./wwwroot/css/bundle.css --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "he",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.1.2"
+  }
+}

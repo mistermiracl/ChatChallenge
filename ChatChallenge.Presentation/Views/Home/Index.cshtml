@@ -1,0 +1,38 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="mt-20 text-center">
+    <h1 class="font-bebas-neue text-8xl italic">Chat Challenge</h1>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="mt-4 mx-auto max-w-xl">
+            <div class="flex flex-wrap justify-center gap-2">
+                @foreach (var chatroom in ViewBag.chatrooms)
+                {
+                    <a href="/Chatroom/Chat/@chatroom.ID" class="flex items-center justify-center p-2 basis-40 font-bebas-neue text-2xl bg-skyblue" type="submit">
+                        <span>@chatroom.Name</span>
+                    </a>
+                }
+            </div>
+            <div x-data="{ create: false }" class="mt-14">
+                <button x-show="!create" @@click="create = true;" class="w-full max-w-lg py-2 font-bebas-neue text-2xl text-skyblue">+ Create a chatroom</button>
+                <form x-show="create" x-cloak method="post" action="/Chatroom/Create" class="flex">
+                    <input name="name" class="flex-[2] px-2 py-2 border-none outline-none bg-secondary" placeholder="Chatroom Name" required />
+                    <button class="flex-1 px-1 py-2 font-bebas-neue text-xl bg-skyblue" type="submit">Create!</button>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-2xl">
+            <span>Gotta</span>
+            <a class="text-blue-400" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            <span>in order to continue, or</span>
+            <a class="text-blue-400" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <span>if you don't have an account</span>
+        </p>
+    }
+</div>

@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Chat Challenge</title>
+    <link rel="stylesheet" href="~/css/bundle.css">
+    <script src="~/lib/signalr.min.js"></script>
+    <script src="~/lib/alpine.min.js" defer></script>
+</head>
+<body class="flex flex-col text-white bg-primary">
+    <header class="relative min-h-[1px] text-center">
+        <a class="absolute top-0 left-0" href="/">
+            <div class="w-11 h-11 bg-white rounded-br-3xl">
+                <div class="w-10 h-10 bg-skyblue rounded-br-full"></div>
+            </div>
+        </a>
+        @if(Context.Request.Path != "/") {
+            <a class="font-bebas-neue text-6xl italic" href="/">Chat Challenge</a>
+        }
+        @if(User.Identity.IsAuthenticated)
+        {
+            <form class="absolute top-5 right-10 font-bold" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
+                <button type="submit" class="text-skyblue">Logout</button>
+            </form>
+        }
+    </header>
+    <main role="main">@* class="flex-1" *@
+        @RenderBody()
+    </main>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

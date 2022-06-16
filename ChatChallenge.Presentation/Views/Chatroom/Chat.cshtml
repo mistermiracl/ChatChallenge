@@ -1,0 +1,145 @@
+@using ChatChallenge.Domain.Entities
+@model Chatroom
+@{
+    ViewData["Title"] = @Model.Name;
+}
+<h2 class="mt-6 text-center font-bebas-neue text-4xl">@Model.Name</h2>
+<div x-data="chatroom()" x-init="await initialize()" class="flex flex-col gap-3 h-full p-4">
+    <div class="pt-2 pb-4 bg-secondary rounded-lg">
+        <div id="chat" class="flex flex-col gap-2 h-96 overflow-y-auto">
+            <div x-show="!messages.length" x-cloak class="m-auto">No messages</div>
+            <template x-show="messages.length" x-for="message in messages" x-cloak>
+                <div :class="message.Me ? 'justify-end' : ''" class="flex px-2">
+                    <div x-show="!message.Error && !message.quote" class="flex flex-col gap-1">
+                        <span x-text="message.Username" :class="message.Me ? 'text-right' : ''"></span>
+                        <div x-text="message.Payload" :class="message.Me ? 'ml-auto text-white bg-skyblue' : 'mr-auto text-black bg-white'" class="inline-block px-4 py-2 rounded-sm"></div>
+                    </div>
+                    <div x-show="message.Error" x-text="message.Payload" class="flex-1 text-right text-red-600"></div>
+                    <div x-show="message.quote" x-text="`${message.stockCode} quote is $${message.quote} per share`" :class="message.me ? 'text-right' : 'text-left'" class="flex-1 text-right text-green-600"></div>
+                </div>
+            </template>
+        </div>
+    </div>
+    <form class="flex" @@submit.prevent="sendMessage()">
+        <input x-model="currentMessage" :disabled="!initialized" class="flex-1 px-2 py-3 text-lg border-none outline-none bg-secondary rounded-tl-lg rounded-bl-lg" placeholder="Text" />
+        <button :disabled="!initialized" class="px-4 py-3 font-bebas-neue text-xl bg-skyblue">
+            <span>Send</span>
+            <svg class="inline-block" width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M7.75778 6.14799C6.84443 5.77187 6.0833 5.45843 5.49196 5.30702C4.91915 5.16036 4.18085 5.07761 3.63766 5.62862C3.09447 6.17962 3.18776 6.91666 3.34259 7.48732C3.50242 8.07644 3.8267 8.83302 4.21583 9.7409L4.86259 11.25H10C10.4142 11.25 10.75 11.5858 10.75 12C10.75 12.4142 10.4142 12.75 10 12.75H4.8626L4.21583 14.2591C3.8267 15.167 3.50242 15.9236 3.34259 16.5127C3.18776 17.0833 3.09447 17.8204 3.63766 18.3714C4.18085 18.9224 4.91915 18.8396 5.49196 18.693C6.0833 18.5416 6.84443 18.2281 7.75777 17.852L19.1997 13.1406C19.4053 13.0561 19.6279 12.9645 19.7941 12.867C19.944 12.779 20.3434 12.5192 20.3434 12C20.3434 11.4808 19.944 11.221 19.7941 11.133C19.6279 11.0355 19.4053 10.9439 19.1997 10.8594L7.75778 6.14799Z"
+                    fill="currentColor" />
+            </svg>
+        </button>
+    </form>
+</div>
+@section scripts {
+    <script>
+        const chatContainer = document.getElementById('chat');
+        const username = '@ViewBag.username';
+        const chatroomId = @Model.ID;
+        const chatroomHubUrl = '/chatroomHub';
+        const chatroomHubJoinGroupMethod = 'JoinGroup';
+        const chatroomHubSendMessageMethod = 'SendMessage';
+        const chatroomHubRequestStocksMethod = 'RequestStocks';
+        const stocksCommand = 'stock=';
+        
+        function chatroom() {
+            @* console.log("the messages are: " + messages); *@
+            // TODO: if i place a floating absolute element behind the input if the input has transparent background when pressing the keys it should hide the floating
+            // TODO: connect then call, then join group once, that call should return the last 50 messages ordered ofc
+            // TODO: then as you receive messages add them to the messages array ordered
+            @* for(let i = 0; i < 100; i++) {
+                if(i % 3 === 0) {
+                    messages.push({
+                        username: "Me",
+                        payload: "Hey",
+                        me: true
+                    });
+                } else {
+                    messages.push({
+                        username: "You",
+                        payload: "Hey"
+                    });
+                }
+            } *@
+            return {
+                messages: [],
+                currentMessage: '',
+                initialized: false,
+                hubConnection: null,
+                async initialize() {// since init is called by the framework automatically but not awaited?
+                    this.hubConnection = new signalR.HubConnectionBuilder()
+                        .withUrl(chatroomHubUrl)
+                        .build();
+                    await this.hubConnection.start();
+                    this.messages = await this.hubConnection.invoke(chatroomHubJoinGroupMethod, chatroomId);
+                    scrollToBottom();
+                    console.log('Loaded messages: ', this.messages);
+                    this.hubConnection.on('ReceiveMessage', message => {
+                        console.log('Received message: ', message);
+                        message.Me = username == message.Username;
+                        // TODO: sort by timestamp
+                        this.messages.push(message);
+                        scrollToBottom();
+                    });
+                    this.hubConnection.on('ReceiveStocksMessage', message => {
+                        console.log(message);
+                        if(message.success) {
+                            this.messages.push({
+                                stockCode: message.stockCode.toUpperCase(),
+                                quote: message.quote,
+                                me: message.username === username
+                            });
+                        } else {
+                            this.messages.push({
+                                Error: true,
+                                Payload: 'Invalid stock code',
+                            });
+                        }
+                        scrollToBottom();
+                    });
+                    this.initialized = true;
+                },
+                async sendMessage() {
+                    if (this.currentMessage) {
+                        if(this.currentMessage.startsWith('/')) {
+                            let command = this.currentMessage.substring(1);
+                            if(command.startsWith(stocksCommand)) {
+                                let stockCode = command.split('=')[1];
+                                console.log(stockCode)
+                                // TODO: call backend
+                                let response = await this.hubConnection.invoke(chatroomHubRequestStocksMethod, chatroomId, {
+                                    stockCode
+                                });
+                                console.log(response);
+                            } else {
+                                // TODO: push error message
+                                this.messages.push({
+                                    Error: true,
+                                    Payload: 'Invalid command'
+                                });
+                                scrollToBottom();
+                            }
+                        } else {
+                            this.hubConnection.invoke(chatroomHubSendMessageMethod, chatroomId, {
+                                Username: username,
+                                Payload: this.currentMessage
+                            });
+                        }
+                        this.currentMessage = '';
+                    }
+                }
+            }
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scroll({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    </script>
+}

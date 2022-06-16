@@ -1,0 +1,26 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="text-center">
+    <h1 class="font-bebas-neue text-4xl">@ViewData["Title"]</h1>
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <div class="flex flex-col mx-auto max-w-lg">
+            <input asp-for="Input.Username" class="px-2 py-2 border-none outline-none bg-secondary" placeholder="Username" />
+            <span asp-validation-for="Input.Username" class="text-red-900"></span>
+        </div>
+        <div class="flex flex-col mx-auto max-w-lg">
+            <input asp-for="Input.Password" class="px-2 py-2 border-none outline-none bg-secondary" placeholder="Password" />
+            <span asp-validation-for="Input.Password" class="text-red-900"></span>
+        </div>
+        <div class="flex flex-col mx-auto max-w-lg">
+            <input asp-for="Input.ConfirmPassword" class="px-2 py-2 border-none outline-none bg-secondary" placeholder="Confirm Password" />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-red-900"></span>
+        </div>
+        <div>
+            <button id="registerSubmit" class="mt-2 w-full max-w-lg py-2 font-bebas-neue text-xl bg-skyblue" type="submit">Register</button>
+        </div>
+    </form>
+</div>
