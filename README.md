@@ -16,8 +16,8 @@ In order to test this solution first ```git clone``` this repo then follow the n
 
 ## Steps
 
-1. Run ```docker-compose up``` it will launch the RabbitMQ server needed
-2. On the root of the cloned repo run ```dotnet restore```, it will compute the dependency tree and download or compile the required dependencies
+1. On the root of the cloned solution run ```docker-compose up``` it will launch the RabbitMQ server needed
+2. Spawn another shell On the root of the cloned solution and run ```dotnet restore```, it will compute the dependency tree and download or compile the required dependencies
 3. Navigate to the ```ChatChallenge.StocksBot``` folder and run ```dotnet publish -c Release -o out```
 4. Navigate to the ```ChatChallenge.StocksBot/out``` folder and run ```dotnet ChatChallenge.StocksBot.dll```, the StocksBot will start running, it will spawn a http and https server, take note of the https port
 5. On a different shell navigate to the root of the solution
