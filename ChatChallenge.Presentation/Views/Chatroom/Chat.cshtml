@@ -15,7 +15,7 @@
                         <div x-text="message.Payload" :class="message.Me ? 'ml-auto text-white bg-skyblue' : 'mr-auto text-black bg-white'" class="inline-block px-4 py-2 rounded-sm"></div>
                     </div>
                     <div x-show="message.Error" x-text="message.Payload" class="flex-1 text-right text-red-600"></div>
-                    <div x-show="message.quote" x-text="`${message.stockCode} quote is $${message.quote} per share`" :class="message.me ? 'text-right' : 'text-left'" class="flex-1 text-right text-green-600"></div>
+                    <div x-show="message.quote" x-text="`${message.stockCode} quote is $${message.quote} per share`" :class="message.me ? 'text-right' : 'text-left'" class="flex-1 text-green-600"></div>
                 </div>
             </template>
         </div>
@@ -45,24 +45,6 @@
         const stocksCommand = 'stock=';
         
         function chatroom() {
-            @* console.log("the messages are: " + messages); *@
-            // TODO: if i place a floating absolute element behind the input if the input has transparent background when pressing the keys it should hide the floating
-            // TODO: connect then call, then join group once, that call should return the last 50 messages ordered ofc
-            // TODO: then as you receive messages add them to the messages array ordered
-            @* for(let i = 0; i < 100; i++) {
-                if(i % 3 === 0) {
-                    messages.push({
-                        username: "Me",
-                        payload: "Hey",
-                        me: true
-                    });
-                } else {
-                    messages.push({
-                        username: "You",
-                        payload: "Hey"
-                    });
-                }
-            } *@
             return {
                 messages: [],
                 currentMessage: '',
